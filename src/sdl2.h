@@ -7,5 +7,4 @@
 #	include "SDL.h"
 #endif
 
-
 #endif // SDL2_H

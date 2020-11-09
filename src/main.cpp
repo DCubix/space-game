@@ -8,7 +8,16 @@ public:
 		loadSpriteSheet("sheet.bmp");
 
 		propulsionAnim = createAnimation({ 4, 6, 8, 10, 12 });
-		bombAnim = createAnimation({ util::spi(0, 3), util::spi(0, 4), util::spi(0, 5), util::spi(0, 6), util::spi(0, 7), util::spi(0, 8), util::spi(0, 9), util::spi(0, 10) });
+		bombAnim = createAnimation({
+			util::spi(0, 3),
+			util::spi(0, 4),
+			util::spi(0, 5),
+			util::spi(0, 6),
+			util::spi(0, 7),
+			util::spi(0, 8),
+			util::spi(0, 9),
+			util::spi(0, 10)
+		});
 	}
 
 	void onUpdate(float delta) override {

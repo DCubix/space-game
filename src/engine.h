@@ -1,11 +1,13 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
+#ifndef ENGINE_ONLY_PRIMITIVES
 #include "sdl2.h"
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <initializer_list>
+#endif
 
 using u8	= uint8_t;
 using u16	= uint16_t;
@@ -17,6 +19,7 @@ using i32	= int32_t;
 using i64	= int64_t;
 using str	= std::string;
 
+#ifndef ENGINE_ONLY_PRIMITIVES
 constexpr u32 TileWidth = 8;
 constexpr u32 TileHeight = 8;
 constexpr u32 SpriteSheetColumnCount = 32;
@@ -94,5 +97,7 @@ private:
 
 	ErrorCode loop();
 };
+
+#endif
 
 #endif // ENGINE_H
