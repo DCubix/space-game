@@ -32,30 +32,20 @@ public:
 	Entity() = default;
 	~Entity() = default;
 
-	void onUpdate(float dt);
+	void onUpdate(GameWindow* game, float dt);
+
+	const EntityType& type() const { return m_type; }
+	void type(const EntityType& type) { m_type = type; }
+
+	i32 x{ 0 }, y{ 0 };
 
 private:
-	i32 m_x, m_y;
-
-	struct {
-		u32 health{ 100 };
-		float speed{ 30.0f };
-		enum {
-			SpecialNone = 0,
-			SpecialNuke,
-			SpecialShockwave
-		} special{ SpecialNone };
-		u32 specialCount{ 0 };
-		bool hasShield{ false };
-		float shieldTime{ 10.0f };
-	} m_player;
-
-	struct {
-		float speed{ 60.0f };
-		int xDirection{ 1 };
-	} m_bullet;
-
 	EntityType m_type{ EntityType::Empty };
+
+	struct {
+		float speed{ 200.0f };
+
+	} player;
 };
 
 #endif // ACTOR_H

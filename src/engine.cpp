@@ -86,13 +86,28 @@ ErrorCode GameWindow::loop() {
 		lastTime = currentTime;
 		accum += delta;
 
+		for (auto& [k, v] : m_events) {
+			v.pressed = false;
+			v.released = false;
+		}
+
 		while (SDL_PollEvent(&evt)) {
 			if (evt.type == SDL_QUIT) running = false;
+			switch (evt.type) {
+				case SDL_KEYDOWN: {
+					m_events[evt.key.keysym.sym].down = true;
+					m_events[evt.key.keysym.sym].pressed = true;
+				} break;
+				case SDL_KEYUP: {
+					m_events[evt.key.keysym.sym].down = false;
+					m_events[evt.key.keysym.sym].released = true;
+				} break;
+			}
 		}
 
 		while (accum >= timeStep) {
 			// update animations
-			for (auto& anim : m_animations) {
+			for (auto& [n, anim] : m_animations) {
 				if (anim.time >= 1.0f / anim.fps) {
 					anim.time = 0.0f;
 					if (anim.mode != AnimationMode::PingPong) {
@@ -167,23 +182,22 @@ void GameWindow::loadSpriteSheet(const str& fileName) {
 	SDL_FreeSurface(surf);
 }
 
-AnimationID GameWindow::createAnimation(const std::initializer_list<u32>& frames) {
+void GameWindow::createAnimation(const str& name, const std::initializer_list<u32>& frames) {
 	Animation anim{};
 	anim.mode = AnimationMode::Loop;
 	anim.frames = std::vector<u32>(frames);
-	m_animations.push_back(anim);
-	return m_animations.size()-1;
+	m_animations[name] = anim;
 }
 
-u32 GameWindow::animation(AnimationID id, u32 fps, AnimationMode mode) {
-	Animation& anim = m_animations[id];
+u32 GameWindow::animation(const str& name, u32 fps, AnimationMode mode) {
+	Animation& anim = m_animations[name];
 	anim.fps = fps;
 	anim.mode = mode;
 	return anim.frames[anim.index];
 }
 
-void GameWindow::restartAnimation(AnimationID id) {
-	m_animations[id].index = 0;
-	m_animations[id].time = 0.0f;
-	m_animations[id].reverse = false;
+void GameWindow::restartAnimation(const str& name) {
+	m_animations[name].index = 0;
+	m_animations[name].time = 0.0f;
+	m_animations[name].reverse = false;
 }

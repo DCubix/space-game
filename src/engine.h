@@ -1,13 +1,12 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
-#ifndef ENGINE_ONLY_PRIMITIVES
 #include "sdl2.h"
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <map>
 #include <initializer_list>
-#endif
 
 using u8	= uint8_t;
 using u16	= uint16_t;
@@ -19,12 +18,9 @@ using i32	= int32_t;
 using i64	= int64_t;
 using str	= std::string;
 
-#ifndef ENGINE_ONLY_PRIMITIVES
 constexpr u32 TileWidth = 8;
 constexpr u32 TileHeight = 8;
 constexpr u32 SpriteSheetColumnCount = 32;
-
-using AnimationID = uint32_t;
 
 namespace util {
 	static u32 spi(u32 x, u32 y) {
@@ -64,12 +60,16 @@ public:
 	const u32& pixelSize() const { return m_pixelSize; }
 
 	void sprite(u32 index, i32 x, i32 y);
-	u32 animation(AnimationID id, u32 fps = 15, AnimationMode mode = AnimationMode::Loop);
+	u32 animation(const str& name, u32 fps = 15, AnimationMode mode = AnimationMode::Loop);
 	void patch(u32 ix, u32 iy, u32 iw, u32 ih, i32 x, i32 y);
 
 	void loadSpriteSheet(const str& fileName);
-	AnimationID createAnimation(const std::initializer_list<u32>& frames);
-	void restartAnimation(AnimationID id);
+	void createAnimation(const str& name, const std::initializer_list<u32>& frames);
+	void restartAnimation(const str& name);
+
+	bool keyPressed(u32 k) { return m_events[k].pressed; }
+	bool keyReleased(u32 k) { return m_events[k].released; }
+	bool keyHeld(u32 k) { return m_events[k].down; }
 
 private:
 	str m_title{ "Game Window" };
@@ -87,17 +87,21 @@ private:
 		std::vector<u32> frames;
 	};
 
+	struct Event {
+		bool pressed{ false }, released{ false }, down{ false };
+	};
+
 	// Internals
 	SDL_Window* m_window;
 	SDL_Renderer* m_renderer;
 	SDL_Texture *m_screen, *m_spriteSheet{ nullptr };
 
 	std::vector<Sprite> m_sprites{};
-	std::vector<Animation> m_animations{};
+	std::map<std::string, Animation> m_animations{};
+
+	std::map<u32, Event> m_events;
 
 	ErrorCode loop();
 };
-
-#endif
 
 #endif // ENGINE_H
