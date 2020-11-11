@@ -86,14 +86,9 @@ ErrorCode GameWindow::loop() {
 		lastTime = currentTime;
 		accum += delta;
 
-		for (auto& [k, v] : m_events) {
-			v.pressed = false;
-			v.released = false;
-		}
-
 		while (SDL_PollEvent(&evt)) {
-			if (evt.type == SDL_QUIT) running = false;
 			switch (evt.type) {
+				case SDL_QUIT: running = false; break;
 				case SDL_KEYDOWN: {
 					m_events[evt.key.keysym.sym].down = true;
 					m_events[evt.key.keysym.sym].pressed = true;
@@ -107,7 +102,7 @@ ErrorCode GameWindow::loop() {
 
 		while (accum >= timeStep) {
 			// update animations
-			for (auto& [n, anim] : m_animations) {
+			for (auto& anim : m_animations) {
 				if (anim.time >= 1.0f / anim.fps) {
 					anim.time = 0.0f;
 					if (anim.mode != AnimationMode::PingPong) {
@@ -133,11 +128,16 @@ ErrorCode GameWindow::loop() {
 			onUpdate(float(timeStep));
 			accum -= timeStep;
 			canRender = true;
+
+			for (auto& [k, v] : m_events) {
+				v.pressed = false;
+				v.released = false;
+			}
 		}
 
 		if (canRender) {
 			SDL_SetRenderTarget(m_renderer, m_screen);
-			SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 0);
+			SDL_SetRenderDrawColor(m_renderer, 20, 0, 100, 255);
 			SDL_RenderClear(m_renderer);
 
 			if (m_spriteSheet) {
@@ -182,22 +182,23 @@ void GameWindow::loadSpriteSheet(const str& fileName) {
 	SDL_FreeSurface(surf);
 }
 
-void GameWindow::createAnimation(const str& name, const std::initializer_list<u32>& frames) {
+u32 GameWindow::createAnimation(const std::initializer_list<u32>& frames) {
 	Animation anim{};
 	anim.mode = AnimationMode::Loop;
 	anim.frames = std::vector<u32>(frames);
-	m_animations[name] = anim;
+	m_animations.push_back(anim);
+	return m_animations.size() - 1;
 }
 
-u32 GameWindow::animation(const str& name, u32 fps, AnimationMode mode) {
-	Animation& anim = m_animations[name];
+u32 GameWindow::animation(u32 id, u32 fps, AnimationMode mode) {
+	Animation& anim = m_animations[id];
 	anim.fps = fps;
 	anim.mode = mode;
 	return anim.frames[anim.index];
 }
 
-void GameWindow::restartAnimation(const str& name) {
-	m_animations[name].index = 0;
-	m_animations[name].time = 0.0f;
-	m_animations[name].reverse = false;
+void GameWindow::restartAnimation(u32 id) {
+	m_animations[id].index = 0;
+	m_animations[id].time = 0.0f;
+	m_animations[id].reverse = false;
 }

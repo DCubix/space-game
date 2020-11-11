@@ -60,12 +60,13 @@ public:
 	const u32& pixelSize() const { return m_pixelSize; }
 
 	void sprite(u32 index, i32 x, i32 y);
-	u32 animation(const str& name, u32 fps = 15, AnimationMode mode = AnimationMode::Loop);
+	u32 animation(u32 id, u32 fps = 15, AnimationMode mode = AnimationMode::Loop);
 	void patch(u32 ix, u32 iy, u32 iw, u32 ih, i32 x, i32 y);
 
 	void loadSpriteSheet(const str& fileName);
-	void createAnimation(const str& name, const std::initializer_list<u32>& frames);
-	void restartAnimation(const str& name);
+	u32 createAnimation(const std::initializer_list<u32>& frames);
+	void restartAnimation(u32 id);
+	bool animationEnded(u32 id) const { return m_animations[id].index >= m_animations[id].frames.size()-1 && m_animations[id].time >= (1.0f / m_animations[id].fps) - 0.1f; }
 
 	bool keyPressed(u32 k) { return m_events[k].pressed; }
 	bool keyReleased(u32 k) { return m_events[k].released; }
@@ -97,7 +98,7 @@ private:
 	SDL_Texture *m_screen, *m_spriteSheet{ nullptr };
 
 	std::vector<Sprite> m_sprites{};
-	std::map<std::string, Animation> m_animations{};
+	std::vector<Animation> m_animations{};
 
 	std::map<u32, Event> m_events;
 
